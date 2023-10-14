@@ -251,5 +251,5 @@ main .section.highlight {
   background-color: var(--highlight-background-color);
 }
 main .section.green {
-  background-color: var(--red-background-color);
+  background-color: var(--green-background-color);
 }
