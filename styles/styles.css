@@ -17,6 +17,7 @@
   --background-color: #ffffff;
   --overlay-background-color: #eee;
   --highlight-background-color: #ccc;
+  --red-background-color:#ff0000;
   --text-color: #000;
 
   /* fonts */
@@ -248,4 +249,7 @@ main .section {
 /* section metadata */
 main .section.highlight {
   background-color: var(--highlight-background-color);
+}
+main .section.red {
+  background-color: var(--red-background-color);
 }
