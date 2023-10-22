@@ -28,4 +28,3 @@ function buildCell(rowIndex) {
     block.innerHTML = '';
     block.append(table);
   }
-  
