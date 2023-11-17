@@ -1,7 +1,6 @@
 import {
   sampleRUM,
   buildBlock,
-  getMetadata,
   loadHeader,
   loadFooter,
   decorateButtons,
@@ -12,25 +11,32 @@ import {
   waitForLCP,
   loadBlocks,
   loadCSS,
-  toClassName,
-} from './lib-franklin.js';
+} from './aem.js';
 
 const LCP_BLOCKS = []; // add your LCP blocks to the list
 
-// Define the custom audiences mapping for experimentation
-const EXPERIMENTATION_CONFIG = {
-  audiences: {
-    device: {
-      mobile: () => window.innerWidth < 600,
-      desktop: () => window.innerWidth >= 600,
-    },
-    visitor: {
-      new: () => !localStorage.getItem('franklin-visitor-returning'),
-      returning: () => !!localStorage.getItem('franklin-visitor-returning'),
-    },
-  },
+//Experiment
+const AUDIENCES = {
+  mobile: () => window.innerWidth < 600,
+  desktop: () => window.innerWidth >= 600,
+  // define your custom audiences here as needed
 };
 
+/**
+ * Gets all the metadata elements that are in the given scope.
+ * @param {String} scope The scope/prefix for the metadata
+ * @returns an array of HTMLElement nodes that match the given scope
+ */
+export function getAllMetadata(scope) {
+  return [...document.head.querySelectorAll(`meta[property^="${scope}:"],meta[name^="${scope}-"]`)]
+    .reduce((res, meta) => {
+      const id = toClassName(meta.name
+        ? meta.name.substring(scope.length + 1)
+        : meta.getAttribute('property').split(':')[1]);
+      res[id] = meta.getAttribute('content');
+      return res;
+    }, {});
+}
 /**
  * Builds hero block and prepends to main in a new section.
  * @param {Element} main The container element
@@ -39,11 +45,7 @@ function buildHeroBlock(main) {
   const h1 = main.querySelector('h1');
   const picture = main.querySelector('picture');
   // eslint-disable-next-line no-bitwise
-  if (
-    h1 &&
-    picture &&
-    h1.compareDocumentPosition(picture) & Node.DOCUMENT_POSITION_PRECEDING
-  ) {
+  if (h1 && picture && (h1.compareDocumentPosition(picture) & Node.DOCUMENT_POSITION_PRECEDING)) {
     const section = document.createElement('div');
     section.append(buildBlock('hero', { elems: [picture, h1] }));
     main.prepend(section);
@@ -56,8 +58,7 @@ function buildHeroBlock(main) {
 async function loadFonts() {
   await loadCSS(`${window.hlx.codeBasePath}/styles/fonts.css`);
   try {
-    if (!window.location.hostname.includes('localhost'))
-      sessionStorage.setItem('fonts-loaded', 'true');
+    if (!window.location.hostname.includes('localhost')) sessionStorage.setItem('fonts-loaded', 'true');
   } catch (e) {
     // do nothing
   }
@@ -98,13 +99,15 @@ async function loadEager(doc) {
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
 
-  // load experiments
-  const experiment = toClassName(getMetadata('experiment'));
-  const instantExperiment = getMetadata('instant-experiment');
-  if (instantExperiment || experiment) {
-    const { runExperiment } = await import('./experimentation/index.js');
-    await runExperiment(experiment, instantExperiment, EXPERIMENTATION_CONFIG);
-  }
+// Add below snippet early in the eager phase
+if (getMetadata('experiment')
+|| Object.keys(getAllMetadata('campaign')).length
+|| Object.keys(getAllMetadata('audience')).length) {
+// eslint-disable-next-line import/no-relative-packages
+const { loadEager: runEager } = await import('../plugins/experimentation/src/index.js');
+await runEager(document, { audiences: AUDIENCES }, pluginContext);
+}
+
 
   const main = doc.querySelector('main');
   if (main) {
@@ -145,21 +148,13 @@ async function loadLazy(doc) {
   sampleRUM.observe(main.querySelectorAll('div[data-block-name]'));
   sampleRUM.observe(main.querySelectorAll('picture > img'));
 
-  // Load experimentation preview overlay
-  if (
-    window.location.hostname === 'localhost' ||
-    window.location.hostname.endsWith('.hlx.page')
-  ) {
-    const preview = await import(
-      `${window.hlx.codeBasePath}/tools/preview/preview.js`
-    );
-    await preview.default();
-    if (window.hlx.experiment) {
-      const experimentation = await import(
-        `${window.hlx.codeBasePath}/tools/preview/experimentation.js`
-      );
-      experimentation.default();
-    }
+  // Add below snippet at the end of the lazy phase
+  if ((getMetadata('experiment')
+    || Object.keys(getAllMetadata('campaign')).length
+    || Object.keys(getAllMetadata('audience')).length)) {
+    // eslint-disable-next-line import/no-relative-packages
+    const { loadLazy: runLazy } = await import('../plugins/experimentation/src/index.js');
+    await runLazy(document, { audiences: AUDIENCES }, pluginContext);
   }
 }
 
