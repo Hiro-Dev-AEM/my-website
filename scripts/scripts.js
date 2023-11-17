@@ -15,7 +15,7 @@ import {
 
 const LCP_BLOCKS = []; // add your LCP blocks to the list
 
-//Experiment
+// Experiments
 const AUDIENCES = {
   mobile: () => window.innerWidth < 600,
   desktop: () => window.innerWidth >= 600,
@@ -37,6 +37,17 @@ export function getAllMetadata(scope) {
       return res;
     }, {});
 }
+// Define an execution context
+const pluginContext = {
+  getAllMetadata,
+  getMetadata,
+  loadCSS,
+  loadScript,
+  sampleRUM,
+  toCamelCase,
+  toClassName,
+};
+
 /**
  * Builds hero block and prepends to main in a new section.
  * @param {Element} main The container element
@@ -99,16 +110,15 @@ async function loadEager(doc) {
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
 
-// Add below snippet early in the eager phase
-if (getMetadata('experiment')
-|| Object.keys(getAllMetadata('campaign')).length
-|| Object.keys(getAllMetadata('audience')).length) {
-// eslint-disable-next-line import/no-relative-packages
-const { loadEager: runEager } = await import('../plugins/experimentation/src/index.js');
-await runEager(document, { audiences: AUDIENCES }, pluginContext);
-}
-
-
+  // Add below snippet early in the eager phase
+  if (getMetadata('experiment')
+    || Object.keys(getAllMetadata('campaign')).length
+    || Object.keys(getAllMetadata('audience')).length) {
+    // eslint-disable-next-line import/no-relative-packages
+    const { loadEager: runEager } = await import('../plugins/experimentation/src/index.js');
+    await runEager(document, { audiences: AUDIENCES }, pluginContext);
+  }
+  
   const main = doc.querySelector('main');
   if (main) {
     decorateMain(main);
@@ -147,15 +157,6 @@ async function loadLazy(doc) {
   sampleRUM('lazy');
   sampleRUM.observe(main.querySelectorAll('div[data-block-name]'));
   sampleRUM.observe(main.querySelectorAll('picture > img'));
-
-  // Add below snippet at the end of the lazy phase
-  if ((getMetadata('experiment')
-    || Object.keys(getAllMetadata('campaign')).length
-    || Object.keys(getAllMetadata('audience')).length)) {
-    // eslint-disable-next-line import/no-relative-packages
-    const { loadLazy: runLazy } = await import('../plugins/experimentation/src/index.js');
-    await runLazy(document, { audiences: AUDIENCES }, pluginContext);
-  }
 }
 
 /**
