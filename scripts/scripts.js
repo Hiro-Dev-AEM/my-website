@@ -56,7 +56,7 @@ async function loadEager(doc) {
     await runEager(document, { audiences: AUDIENCES }, pluginContext);
   }
 }
-sync function loadLazy(doc) {
+async function loadLazy(doc) {
    // Add below snippet at the end of the lazy phase
   if ((getMetadata('experiment')
     || Object.keys(getAllMetadata('campaign')).length
