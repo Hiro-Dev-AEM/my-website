@@ -12,7 +12,16 @@ import {
   loadBlocks,
   loadCSS,
 } from './aem.js';
-
+// Define an execution context
+const pluginContext = {
+  getAllMetadata,
+  getMetadata,
+  loadCSS,
+  loadScript,
+  sampleRUM,
+  toCamelCase,
+  toClassName,
+};
 const LCP_BLOCKS = []; // add your LCP blocks to the list
 
 // Experiments
@@ -37,16 +46,6 @@ export function getAllMetadata(scope) {
       return res;
     }, {});
 }
-// Define an execution context
-const pluginContext = {
-  getAllMetadata,
-  getMetadata,
-  loadCSS,
-  loadScript,
-  sampleRUM,
-  toCamelCase,
-  toClassName,
-};
 
 /**
  * Builds hero block and prepends to main in a new section.
