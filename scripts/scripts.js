@@ -46,16 +46,6 @@ const pluginContext = {
   toCamelCase,
   toClassName,
 };
-async function loadLazy(doc) {
-   // Add below snippet at the end of the lazy phase
-  if ((getMetadata('experiment')
-    || Object.keys(getAllMetadata('campaign')).length
-    || Object.keys(getAllMetadata('audience')).length)) {
-    // eslint-disable-next-line import/no-relative-packages
-    const { loadLazy: runLazy } = await import('../plugins/experimentation/src/index.js');
-    await runLazy(document, { audiences: AUDIENCES }, pluginContext);
-  }
-}
 /**
  * Builds hero block and prepends to main in a new section.
  * @param {Element} main The container element
