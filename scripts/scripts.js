@@ -37,15 +37,6 @@ export function getAllMetadata(scope) {
       return res;
     }, {});
 }
-const pluginContext = {
-  getAllMetadata,
-  getMetadata,
-  loadCSS,
-  loadScript,
-  sampleRUM,
-  toCamelCase,
-  toClassName,
-};
 /**
  * Builds hero block and prepends to main in a new section.
  * @param {Element} main The container element
