@@ -102,7 +102,7 @@ async function loadEager(doc) {
   const experiment = toClassName(getMetadata('experiment'));
   const instantExperiment = getMetadata('instant-experiment');
   if (instantExperiment || experiment) {
-    const { runExperiment } = await import('./experimentation/index.js');
+    const { runExperiment } = await import('./experimentation/src/index.js');
     await runExperiment(experiment, instantExperiment, EXPERIMENTATION_CONFIG);
   }
 
