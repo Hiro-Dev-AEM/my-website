@@ -98,6 +98,17 @@ export function decorateMain(main) {
 async function loadEager(doc) {
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
+
+// Add below snippet early in the eager phase
+if (getMetadata('experiment')
+|| Object.keys(getAllMetadata('campaign')).length
+|| Object.keys(getAllMetadata('audience')).length) {
+// eslint-disable-next-line import/no-relative-packages
+const { loadEager: runEager } = await import('../plugins/experimentation/src/index.js');
+await runEager(document, { audiences: AUDIENCES }, pluginContext);
+}
+
+
   const main = doc.querySelector('main');
   if (main) {
     decorateMain(main);
