@@ -47,7 +47,6 @@ const pluginContext = {
   toClassName,
 };
 async function loadEager(doc) {
-  …
   // Add below snippet early in the eager phase
   if (getMetadata('experiment')
     || Object.keys(getAllMetadata('campaign')).length
@@ -56,11 +55,9 @@ async function loadEager(doc) {
     const { loadEager: runEager } = await import('../plugins/experimentation/src/index.js');
     await runEager(document, { audiences: AUDIENCES }, pluginContext);
   }
-  …
 }
 sync function loadLazy(doc) {
-  …
-  // Add below snippet at the end of the lazy phase
+   // Add below snippet at the end of the lazy phase
   if ((getMetadata('experiment')
     || Object.keys(getAllMetadata('campaign')).length
     || Object.keys(getAllMetadata('audience')).length)) {
