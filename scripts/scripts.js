@@ -23,7 +23,6 @@ const AUDIENCES = {
 
 window.hlx.plugins.add('experimentation', {
   condition: () => getMetadata('experiment')
-  options: { audiences: AUDIENCES },
   url: '/plugins/experimentation/src/index.js',
 });
 
