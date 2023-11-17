@@ -14,13 +14,18 @@ import {
 } from './aem.js';
 
 const LCP_BLOCKS = []; // add your LCP blocks to the list
-
-// Define the custom audiences mapping for experimentation
+//Experiment
 const AUDIENCES = {
   mobile: () => window.innerWidth < 600,
   desktop: () => window.innerWidth >= 600,
   // define your custom audiences here as needed
 };
+
+window.hlx.plugins.add('experimentation', {
+  condition: () => getMetadata('experiment')
+  options: { audiences: AUDIENCES },
+  url: '/plugins/experimentation/src/index.js',
+});
 
 window.hlx.plugins.add('experimentation', {
   condition: () => getMetadata('experiment')
