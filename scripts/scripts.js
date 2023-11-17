@@ -22,7 +22,10 @@ const AUDIENCES = {
 };
 
 window.hlx.plugins.add('experimentation', {
-  condition: () => getMetadata('experiment'),
+  condition: () => getMetadata('experiment')
+    || Object.keys(getAllMetadata('campaign')).length
+    || Object.keys(getAllMetadata('audience')).length,
+  options: { audiences: AUDIENCES },
   url: '/plugins/experimentation/src/index.js',
 });
 
